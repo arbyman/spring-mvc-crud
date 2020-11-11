@@ -1,67 +1,43 @@
 package web.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import web.model.User;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Repository
+@Transactional
 public class UserDaoImp implements UserDao {
 
-	@Autowired
-	private EntityManagerFactory entityManagerFactory;
+	@PersistenceContext
+	private EntityManager entityManager;
 
 	@Override
 	public void add(User user) {
-		EntityManager em = entityManagerFactory.createEntityManager();
-		em.getTransaction().begin();
-		em.persist(user);
-		em.getTransaction().commit();
-		em.close();
+		entityManager.persist(user);
 	}
 
 	@Override
 	public User getUserById(long id) {
-		EntityManager em = entityManagerFactory.createEntityManager();
-		Query query = em.createQuery("select u from User u where u.id = :id").setParameter("id", id);
-		User user = (User) query.getSingleResult();
-		em.close();
-		return user;
+		return entityManager.find(User.class, id);
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public List<User> getAllUsers() {
-		EntityManager em = entityManagerFactory.createEntityManager();
-		List<User> users = em.createQuery("from User").getResultList();
-		em.close();
-		return users;
+		return entityManager.createQuery("from User").getResultList();
 	}
 
 	@Override
 	public void delete(long id) {
-		EntityManager em = entityManagerFactory.createEntityManager();
-		em.getTransaction().begin();
-		Query query = em.createQuery("delete from User u where u.id = :id").setParameter("id", id);
-		query.executeUpdate();
-		em.getTransaction().commit();
-		em.close();
+		entityManager.remove(getUserById(id));
 	}
 
 	@Override
 	public void update(long id, User updatedUser) {
-		EntityManager em = entityManagerFactory.createEntityManager();
-		String name = updatedUser.getName();
-		byte age = updatedUser.getAge();
-		em.getTransaction().begin();
-		Query query = em.createQuery("update User u set u.name = :name, u.age = :age where u.id = :id")
-				.setParameter("id", id)
-				.setParameter("name", name)
-				.setParameter("age", age);
-		query.executeUpdate();
-		em.getTransaction().commit();
+		entityManager.merge(updatedUser);
 	}
 }
