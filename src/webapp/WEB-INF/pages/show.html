@@ -5,13 +5,20 @@
     <title>Show user info</title>
 </head>
 <body>
-<p th:text="'Username: ' + ${user.getName()}"/>
+<p th:text="'Username: ' + ${user.getUsername()}"/>
+
 <p th:text="'Age: ' + ${user.getAge()}"/>
 
-<a th:href="@{/edit/{id}(id=${user.getId()})}">Edit user</a>
+<p th:each="role : ${user.getRoles()}" th:text="${role.getAuthority()}"></p>
+
+<a th:href="@{/admin/edit/{id}(id=${user.getId()})}">Edit user</a>
 <hr/>
-<form th:method="DELETE" th:action="@{/delete/{id}(id=${user.getId()})}">
+<form th:method="DELETE" th:action="@{/admin/delete/{id}(id=${user.getId()})}">
     <input type="submit" value="delete"/>
+</form>
+<hr/>
+<form th:action="@{/logout}" method="POST">
+    <input type="submit" value="Logout"/>
 </form>
 </body>
 </html>

@@ -26,9 +26,17 @@ public class UserDaoImp implements UserDao {
 	}
 
 	@Override
+	public User getUserByName(String username) {
+		return (User) entityManager
+				.createQuery("SELECT u FROM User u WHERE u.username = :username")
+				.setParameter("username", username)
+				.getSingleResult();
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<User> getAllUsers() {
-		return entityManager.createQuery("from User").getResultList();
+		return entityManager.createQuery("SELECT u FROM User u").getResultList();
 	}
 
 	@Override
